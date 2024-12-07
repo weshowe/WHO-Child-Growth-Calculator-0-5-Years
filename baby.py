@@ -6,7 +6,7 @@ from pathlib import Path
 import os
 import sys
 
-# Calculation taken from CDC instructions
+# Calculation taken from CDC website instructions for L S and M values (apply to WHO as well)
 def calc_percentile(age, val, chart):
     
     chart_row = chart.loc[age]
@@ -20,7 +20,7 @@ def calc_percentile(age, val, chart):
 
     return norm.cdf(z_score) *100
 
-# Since WHO data percentiles are by month, we use linear interpolation to perform an estimate for a percentile in between.
+# Get percentile.
 def calc_value(months, days, val, chart, unit, isImperial = False):
 
     # Add days to month for age calculation. Based on instructions here: https://cdn.who.int/media/docs/default-source/child-growth/child-growth-standards/indicators/instructions-en.pdf?sfvrsn=5cec8c61_23
