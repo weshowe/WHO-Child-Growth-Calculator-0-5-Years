@@ -1,5 +1,5 @@
 # WHO-Child-Growth-Calculator-0-5-Years
-Uses WHO data ([reference]([https://www.cdc.gov/growthcharts/who-data-files.htm](https://www.who.int/tools/child-growth-standards/standards/head-circumference-for-age))) to calculate percentiles for length, weight, and head circumference based on child's age and gender. Works on babies/kids up to 5 years old.
+Uses WHO data ([reference](https://www.cdc.gov/growthcharts/who-data-files.htm](https://www.who.int/tools/child-growth-standards/standards/head-circumference-for-age))) to calculate percentiles for length, weight, and head circumference based on child's age and gender. Works on babies/kids up to 5 years old.
 
 ## Installing:
 Clone the repo to a folder of your choice and install dependencies by executing "pip install pandas scipy" in the command line.
