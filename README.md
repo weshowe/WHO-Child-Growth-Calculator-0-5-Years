@@ -1,5 +1,5 @@
 # WHO-Baby-Growth-Calculator-0-24-Months-
-Uses WHO data ([reference](https://www.cdc.gov/growthcharts/who-data-files.htm)) to calculate percentiles for length, weight, and head circumference based on baby's age.
+Uses WHO data ([reference](https://www.cdc.gov/growthcharts/who-data-files.htm)) to calculate percentiles for length, weight, and head circumference based on baby's age and gender.
 
 ## Installing:
 Clone the repo to a folder of your choice and install dependencies by executing "pip install pandas scipy" in the command line.
