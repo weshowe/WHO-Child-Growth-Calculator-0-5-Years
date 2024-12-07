@@ -20,43 +20,14 @@ def calc_percentile(age, val, chart):
 
     return norm.cdf(z_score) *100
 
-# If we are performing the calculation at X months, do the straight calculation from the WHO table.
-def calc_value(months, val, chart, unit, isImperial = False):
-
-    # Add days to month for age calculation.
-    age = months
-
-    # Determine what unit of measurement we're using.
-    conv_measurement = val
-    unMeasurement = None
-
-    if unit == "weight":
-
-        if isImperial:
-            unMeasurement = "pounds"
-            conv_measurement *= 0.45359237
-        else:
-            unMeasurement = "kilograms"
-    elif (unit == "length") or unit == "head circumference":
-        if isImperial:
-            unMeasurement = "inches"
-            conv_measurement *= 2.54
-        else:
-            unMeasurement = "centimeters"
-    else:
-        print(f"Error: No logic present for unit type {unit}")
-        return
-    
-    # percentile calculation
-    percentile = calc_percentile(int(age), conv_measurement, chart)
-
-    print(f"For {unit} of {val} {unMeasurement}, percentile at {int(age)} months: {percentile}")
-
 # Since WHO data percentiles are by month, we use linear interpolation to perform an estimate for a percentile in between.
-def interpolate_value(months, days, val, chart, unit, isImperial = False):
+def calc_value(months, days, val, chart, unit, isImperial = False):
 
-    # Add days to month for age calculation.
-    age = months + (days/30)
+    # Add days to month for age calculation. Based on instructions here: https://cdn.who.int/media/docs/default-source/child-growth/child-growth-standards/indicators/instructions-en.pdf?sfvrsn=5cec8c61_23
+    age = round(months * 30.4375 + days)
+
+    # If we've gone over cap (5 years) by some number of days, cap.
+    age = min(1856, age)
 
     # Determine what unit of measurement we're using.
     conv_measurement = val
@@ -79,15 +50,10 @@ def interpolate_value(months, days, val, chart, unit, isImperial = False):
         print(f"Error: No logic present for unit type {unit}")
         return
     
-    # Get lower and upper bound (nearest months) and perform linear interpolation.
-    lower_bound = calc_percentile(int(age), conv_measurement, chart)
-    upper_bound = calc_percentile(int(age)+1, conv_measurement, chart)
-    interpolate = lower_bound + ((upper_bound - lower_bound) * (age - int(age))) # add difference in percentiles * fraction of a month
+    # Get percentile
+    resultant = calc_percentile(int(age), conv_measurement, chart)
 
-    print(f"WHO data is only by month, performing linear interpolation for {unit}...")
-    print(f"For {unit} of {val} {unMeasurement}, percentile at {months} months: {lower_bound}")
-    print(f"For {unit} of {val} {unMeasurement}, percentile at {months + 1} months: {upper_bound}")
-    print(f"For {unit} of {val} {unMeasurement}, linearly interpolated percentile at {months} months {days} days: {interpolate}")
+    print(f"For {unit} of {val} {unMeasurement}, percentile at {months} months {days} days: {resultant}")
 
 def main():
     parser = argparse.ArgumentParser()
@@ -112,8 +78,8 @@ def main():
         print(f"Error: gender argument must be 'boy' or 'girl', passed argument: {args.gender}")
         return
 
-    if (args.months is None) or ((args.months < 1) or (args.months > 24)):
-        print(f"Error: age in month must be between 1 and 24, passed value: {args.months}")
+    if (args.months is None) or ((args.months < 0) or (args.months > 60)):
+        print(f"Error: age in month must be between 0 and 60, passed value: {args.months}")
         return
 
     if args.days is not None:
@@ -153,19 +119,14 @@ def main():
         weight_chart = None
 
         if args.gender == "girl":
-            weight_chart = pd.read_csv(f"{scriptPath}/WHO-Girls-Weight-for-age Percentiles.csv")
+            weight_chart = pd.read_excel(f"{scriptPath}/wfa-girls-zscore-expanded-tables.xlsx")
         else:
-            weight_chart = pd.read_csv(f"{scriptPath}/WHO-Boys-Weight-for-age Percentiles.csv")
+            weight_chart = pd.read_excel(f"{scriptPath}/wfa-boys-zscore-expanded-tables.xlsx")
            
-        weight_chart = weight_chart.set_index(['Month'])
+        weight_chart = weight_chart.set_index(['Day'])
 
         print("Calculating weight percentile...")
-        if args.days == 0:
-            calc_value(args.months, args.weight, weight_chart, "weight", isImperialWeight)
-
-        else:
-            interpolate_value(args.months, args.days, args.weight, weight_chart, "weight", isImperialWeight)
-        
+        calc_value(args.months, args.days, args.weight, weight_chart, "weight", isImperialWeight)  
         print()
     
     # length calculation
@@ -173,39 +134,29 @@ def main():
         length_chart = None
 
         if args.gender == "girl":
-            length_chart = pd.read_csv(f"{scriptPath}/WHO-Girls-Length-for-age-Percentiles.csv")
+            length_chart = pd.read_excel(f"{scriptPath}/lhfa-girls-zscore-expanded-tables.xlsx")
         else:
-            length_chart = pd.read_csv(f"{scriptPath}/WHO-Boys-Length-for-age-Percentiles.csv")
+            length_chart = pd.read_excel(f"{scriptPath}/lhfa-boys-zscore-expanded-tables.xlsx")
            
-        length_chart = length_chart.set_index(['Month'])
+        length_chart = length_chart.set_index(['Day'])
 
         print("Calculating length percentile...")
-        if args.days == 0:
-            calc_value(args.months, args.length, length_chart, "length", isImperialLength)
-
-        else:
-            interpolate_value(args.months, args.days, args.length, length_chart, "length", isImperialLength)
-
+        calc_value(args.months, args.days, args.length, length_chart, "length", isImperialLength)
         print()
+
     # head calculation
     if args.head is not None:
         head_chart = None
 
         if args.gender == "girl":
-            head_chart = pd.read_csv(f"{scriptPath}/WHO-Girls-Head-Circumference-for-age-Percentiles.csv")
+            head_chart = pd.read_excel(f"{scriptPath}/hcfa-girls-zscore-expanded-tables.xlsx")
         else:
-            head_chart = pd.read_csv(f"{scriptPath}/WHO-Boys-Head-Circumference-for-age-Percentiles.csv")
+            head_chart = pd.read_excel(f"{scriptPath}/hcfa-boys-zscore-expanded-tables.xlsx")
            
-        head_chart = head_chart.set_index(['Month'])
+        head_chart = head_chart.set_index(['Day'])
 
         print("Calculating head circumference percentile...")
-
-        if args.days == 0:
-            calc_value(args.months, args.head, head_chart, "head circumference", isImperialLength)
-
-        else:
-            interpolate_value(args.months, args.days, args.head, head_chart, "head circumference", isImperialLength)
-
+        calc_value(args.months, args.days, args.head, head_chart, "head circumference", isImperialLength)
         print()
 
 
