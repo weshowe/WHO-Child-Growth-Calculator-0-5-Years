@@ -79,7 +79,7 @@ def main():
         return
 
     if (args.months is None) or ((args.months < 0) or (args.months > 61)):
-        print(f"Error: age in month must be between 0 and 60, passed value: {args.months}")
+        print(f"Error: age in month must be between 0 and 61, passed value: {args.months}")
         return
 
     if args.days is not None:
