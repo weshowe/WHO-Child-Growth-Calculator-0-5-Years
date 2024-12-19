@@ -21,13 +21,7 @@ def calc_percentile(age, val, chart):
     return norm.cdf(z_score) *100
 
 # Get percentile.
-def calc_value(months, days, val, chart, unit, isImperial = False):
-
-    # Add days to month for age calculation. Based on instructions here: https://cdn.who.int/media/docs/default-source/child-growth/child-growth-standards/indicators/instructions-en.pdf?sfvrsn=5cec8c61_23
-    age = round(months * 30.4375 + days)
-
-    # If we've gone over cap (5 years) by some number of days, cap.
-    age = min(1856, age)
+def calc_value(age, val, chart, unit, isImperial = False):
 
     # Determine what unit of measurement we're using.
     conv_measurement = val
@@ -51,9 +45,9 @@ def calc_value(months, days, val, chart, unit, isImperial = False):
         return
     
     # Get percentile
-    resultant = calc_percentile(int(age), conv_measurement, chart)
+    resultant = calc_percentile(age, conv_measurement, chart)
 
-    print(f"For {unit} of {val} {unMeasurement}, percentile at {months} months {days} days: {resultant}")
+    print(f"For {unit} of {val} {unMeasurement}, the percentile is: {resultant}")
 
 def main():
     parser = argparse.ArgumentParser()
@@ -62,7 +56,8 @@ def main():
     parser.add_argument("-c", "--head", type=float, help="the length of the baby's head circumference")
     parser.add_argument("-l", "--length", type=float, help="the length of the baby")
     parser.add_argument("-w", "--weight", type=float, help="the weight of the baby")
-    parser.add_argument("-m", "--months", type=int, help="How many months old the baby is.", required=True)
+    parser.add_argument("-m", "--months", type=int, help="How many months old the baby is.")
+    parser.add_argument("-y", "--years", type=int, help="How many months old the baby is.")
     parser.add_argument("-d", "--days", type=int, help="How many days old the baby is in addition to the month (ie: if the baby is 5 months 2 days old, this is 2 and the month is 5)")
     parser.add_argument("-g", "--gender", type=str, help="The baby's gender. Accepts 'boy' or 'girl'", required=True, action = "store")
     args = parser.parse_args()
@@ -77,27 +72,55 @@ def main():
     if (args.gender is None) or ((args.gender != "boy") and (args.gender != "girl")):
         print(f"Error: gender argument must be 'boy' or 'girl', passed argument: {args.gender}")
         return
-
-    if (args.months is None) or ((args.months < 0) or (args.months > 60)):
-        print(f"Error: age in month must be between 0 and 60, passed value: {args.months}")
+    
+    if (args.days is None) and (args.months is None) and (args.years is None):
+        print("Error: No age specified. You need to specify values for at least one of the following: --years, --months, --days")
         return
-
+    
     if args.days is not None:
 
-        if (args.days < 0) or (args.days > 31):
-            print(f"Error: days must be positive and less than 31, passed value: {args.days}")
+        if (args.days < 0):
+            print(f"Error: days must be positive, passed value: {args.days}")
             return
-        
-        # Since we're standardizing a month to 30 days, make 31 equal to 30 for calculation purposes.
-        args.days = min(30, args.days)
 
-        # If a month's worth of days has been added, add to month total and zero out days.
-        if args.days == 30:
-            args.months += 1
-            args.days = 0
+        # Overflow handling
+        if args.days > 30:
+
+            if args.months is None:
+                args.months = 0
+            
+            args.months += int(args.days / 30)
+            args.days = args.days % 30
 
     else:
         args.days = 0
+    
+    if args.months is not None:
+
+        if (args.months < 0):
+            print(f"Error: months must be positive, passed value: {args.months}")
+            return
+
+        # Overflow handling
+        if args.months > 12:
+
+            if args.years is None:
+                args.years = 0
+            
+            args.years += int(args.months / 12)
+            args.months = args.months % 12
+
+    else:
+        args.months = 0
+
+    if args.years is not None:
+
+        if (args.years < 0):
+            print(f"Error: years must be positive, passed value: {args.years}")
+            return
+
+    else:
+        args.years = 0
     
     if args.head is not None:
         if args.head <= 0:
@@ -114,6 +137,20 @@ def main():
             print("Error: Weight must be greater than 0")
             return
     
+    print()
+
+    # calculate age in days for the chart. Based on instructions here: https://cdn.who.int/media/docs/default-source/child-growth/child-growth-standards/indicators/instructions-en.pdf?sfvrsn=5cec8c61_23
+    days = args.days + (args.months * 30.4375) + (args.years * 12 * 30.4375)
+    days = int(days)
+    print(f"Input age: {args.years} Years, {args.months} Months, {args.days} Days = {days} Days (adjusted calculation based on WHO instructions)")
+
+    # chart is capped at 1856 days. If we we have overflow, print warning and cap at 1856.
+    if days > 1856:
+        print(f"Warning: WHO chart is limited to 1856 days (approximately 5 years), calculated age is {days} days. Performing calculation for an age of 1856 days.")
+        days = 1856
+    
+    print()
+
     # weight calculation
     if args.weight is not None:
         weight_chart = None
@@ -125,8 +162,7 @@ def main():
            
         weight_chart = weight_chart.set_index(['Day'])
 
-        print("Calculating weight percentile...")
-        calc_value(args.months, args.days, args.weight, weight_chart, "weight", isImperialWeight)  
+        calc_value(days, args.weight, weight_chart, "weight", isImperialWeight)  
         print()
     
     # length calculation
@@ -140,8 +176,7 @@ def main():
            
         length_chart = length_chart.set_index(['Day'])
 
-        print("Calculating length percentile...")
-        calc_value(args.months, args.days, args.length, length_chart, "length", isImperialLength)
+        calc_value(days, length_chart, "length", isImperialLength)
         print()
 
     # head calculation
@@ -155,8 +190,7 @@ def main():
            
         head_chart = head_chart.set_index(['Day'])
 
-        print("Calculating head circumference percentile...")
-        calc_value(args.months, args.days, args.head, head_chart, "head circumference", isImperialLength)
+        calc_value(days, args.head, head_chart, "head circumference", isImperialLength)
         print()
 
 

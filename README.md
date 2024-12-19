@@ -5,11 +5,11 @@ Uses WHO data ([reference](https://www.cdc.gov/growthcharts/who-data-files.htm](
 Clone the repo to a folder of your choice and install dependencies by executing "pip install pandas scipy" in the command line.
 
 ## How to use:
-Execute child.py with the desired command line arguments to get percentiles for the measurements that you have. For example, to get a percentile for all 3 measurements, you might type:
+Execute child.py with the desired command line arguments to get percentiles for the measurements that you have. For example, to get a percentile for all 3 measurements for a boy that's 3 months and 2 days old, you might type:
     
     child.py --weight 5.5 --length 50 --head 30.3 --months 3 --days 2 --gender boy
 
-Age of the child is specified using the --months and --days arguments.
+Age of the child is specified using the --years, --months and --days arguments. You only need to specify at least one, ie: --months 4 if your baby is 4 months old.
 
 Gender of the child is specified using the --gender argument (boy or girl)
 
