@@ -47,7 +47,7 @@ def calc_value(age, val, chart, unit, isImperial = False):
     # Get percentile
     resultant = calc_percentile(age, conv_measurement, chart)
 
-    print(f"For {unit} of {val} {unMeasurement}, the percentile is: {resultant}")
+    print(f"For {unit} of {val} {unMeasurement}, the percentile: {resultant}")
 
 def main():
     parser = argparse.ArgumentParser()
@@ -176,7 +176,7 @@ def main():
            
         length_chart = length_chart.set_index(['Day'])
 
-        calc_value(days, length_chart, "length", isImperialLength)
+        calc_value(days, args.length, length_chart, "length", isImperialLength)
         print()
 
     # head calculation
