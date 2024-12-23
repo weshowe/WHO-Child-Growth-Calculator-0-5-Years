@@ -47,7 +47,7 @@ def calc_value(age, val, chart, unit, isImperial = False):
     # Get percentile
     resultant = calc_percentile(age, conv_measurement, chart)
 
-    print(f"For {unit} of {val} {unMeasurement}, the percentile: {resultant}")
+    print(f"For {unit} of {val} {unMeasurement}, the percentile is: {resultant}")
 
 def main():
     parser = argparse.ArgumentParser()
