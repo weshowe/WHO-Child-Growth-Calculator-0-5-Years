@@ -7,7 +7,7 @@ Clone the repo to a folder of your choice and install dependencies by executing 
 ## How to use:
 Execute child.py with the desired command line arguments to get percentiles for the measurements that you have. For example, to get a percentile for all 3 measurements for a boy that's 3 months and 2 days old, you might type:
     
-    child.py --weight 5.5 --length 50 --head 30.3 --months 3 --days 2 --gender boy
+    python child.py --weight 5.5 --length 50 --head 30.3 --months 3 --days 2 --gender boy
 
 Age of the child is specified using the --years, --months and --days arguments. You only need to specify at least one, ie: --months 4 if your baby is 4 months old.
 
@@ -19,7 +19,7 @@ The --length and --head arguments followed by the measurement in centimeters are
 
 If you would like to use Imperial measurements (pounds and/or inches), you can add the --pounds and/or --inches flags and the program will convert them. For example:
 
-    child.py --weight 12.11 --length 19.68 --head 11.92 --months 3 --days 2 --gender boy --pounds --inches
+    python child.py --weight 12.11 --length 19.68 --head 11.92 --months 3 --days 2 --gender boy --pounds --inches
 
 ## Additional Notes
 This program is intended for informational purposes only. I am not a doctor nor am I affiliated with the WHO, and the program's output should not be interpreted as medical advice.
