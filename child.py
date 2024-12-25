@@ -20,7 +20,7 @@ def calc_percentile(age, val, chart):
 
     return norm.cdf(z_score) *100
 
-# Get percentile.
+# Get percentile (x to age).
 def calc_value(age, val, chart, unit, isImperial = False):
 
     # Determine what unit of measurement we're using.
@@ -47,7 +47,30 @@ def calc_value(age, val, chart, unit, isImperial = False):
     # Get percentile
     resultant = calc_percentile(age, conv_measurement, chart)
 
-    print(f"For {unit} of {val} {unMeasurement}, the percentile is: {resultant}")
+    print(f"For {unit} of {val} {unMeasurement}, the percentile for age by {unit} is: {resultant}")
+
+# Get percentile (weight for height).
+def calc_value_wh(hVal, wVal, chart, isPounds, isInches):
+
+    # Determine what unit of measurement we're using.
+    conv_measurementW = wVal
+    conv_measurementH = hVal
+    unMeasurementW = "kilograms"
+    unMeasurementH = "centimeters"
+    
+    if isPounds:
+        conv_measurementW *= 0.45359237
+        unMeasurementW = "pounds"
+
+    if isInches:
+        conv_measurementH *= 2.54
+        unMeasurementH = "inches"
+    
+    # Round height to nearest 0.5 for indexing purposes.
+    heightIndex = round(2 * conv_measurementH) / 2
+    resultant = calc_percentile(heightIndex, conv_measurementW, chart)
+
+    print(f"For a weight of {wVal} {unMeasurementW} and a height of {hVal} {unMeasurementH}, the percentile for height by weight is: {resultant}")
 
 def main():
     parser = argparse.ArgumentParser()
@@ -191,6 +214,29 @@ def main():
         head_chart = head_chart.set_index(['Day'])
 
         calc_value(days, args.head, head_chart, "head circumference", isImperialLength)
+        print()
+
+    # length for weight calculation
+    if (args.length is not None) and (args.weight is not None):
+        wl_chart = None
+
+        if args.gender == "girl":
+            if days > 730:
+                wl_chart = pd.read_excel(f"{scriptPath}/tab_wfh_girls_p_2_5.xlsx")
+                wl_chart = wl_chart.set_index(['Height'])
+            else:
+                wl_chart = pd.read_excel(f"{scriptPath}/tab_wfl_girls_p_0_2.xlsx")
+                wl_chart = wl_chart.set_index(['Length'])
+
+        else:
+            if days > 730:
+                wl_chart = pd.read_excel(f"{scriptPath}/tab_wfh_boys_p_2_5.xlsx")
+                wl_chart = wl_chart.set_index(['Height'])
+            else:
+                wl_chart = pd.read_excel(f"{scriptPath}/tab_wfl_boys_p_0_2.xlsx")
+                wl_chart = wl_chart.set_index(['Length'])
+
+        calc_value_wh(args.length, args.weight, wl_chart, isImperialWeight, isImperialLength)
         print()
 
 

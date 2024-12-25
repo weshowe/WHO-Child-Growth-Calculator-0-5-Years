@@ -1,11 +1,11 @@
 # WHO-Child-Growth-Calculator-0-5-Years
-Uses WHO data ([reference](https://www.cdc.gov/growthcharts/who-data-files.htm](https://www.who.int/tools/child-growth-standards/standards/head-circumference-for-age))) to calculate percentiles for length, weight, and head circumference based on child's age and gender. Works on babies/kids up to 5 years old.
+Uses WHO data ([reference](https://www.cdc.gov/growthcharts/who-data-files.htm](https://www.who.int/tools/child-growth-standards/standards/head-circumference-for-age))) to calculate percentiles for length by age, weight by age, head circumference by age, and length by weight based on the child's age and gender. Works on babies/kids up to 5 years old.
 
 ## Installing:
 Clone the repo to a folder of your choice and install dependencies by executing "pip install pandas scipy" in the command line.
 
 ## How to use:
-Execute child.py with the desired command line arguments to get percentiles for the measurements that you have. For example, to get a percentile for all 3 measurements for a boy that's 3 months and 2 days old, you might type:
+Execute child.py with the desired command line arguments to get percentiles for the measurements that you have. For example, to get a percentile for all measurements for a boy that's 3 months and 2 days old, you might type:
     
     child.py --weight 5.5 --length 50 --head 30.3 --months 3 --days 2 --gender boy
 
@@ -16,6 +16,8 @@ Gender of the child is specified using the --gender argument (boy or girl)
 The --weight argument followed by weight in kilograms is used to get the weight percentile.
 
 The --length and --head arguments followed by the measurement in centimeters are used to get the length percentile and head circumference percentile, respectively.
+
+If --length and --weight are passed, the length by weight percentile will be calculated.
 
 If you would like to use Imperial measurements (pounds and/or inches), you can add the --pounds and/or --inches flags and the program will convert them. For example:
 
