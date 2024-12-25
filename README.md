@@ -13,9 +13,9 @@ Age of the child is specified using the --years, --months and --days arguments. 
 
 Gender of the child is specified using the --gender argument (boy or girl)
 
-The --weight argument followed by weight in kilograms is used to get the weight percentile.
+The --weight argument followed by weight in kilograms is used to get the weight by age percentile.
 
-The --length and --head arguments followed by the measurement in centimeters are used to get the length percentile and head circumference percentile, respectively.
+The --length and --head arguments followed by the measurement in centimeters are used to get the length by age percentile and head circumference by age percentile, respectively.
 
 If --length and --weight are passed, the length by weight percentile will be calculated.
 
