@@ -2,7 +2,7 @@
 Uses WHO data ([reference](https://www.cdc.gov/growthcharts/who-data-files.htm](https://www.who.int/tools/child-growth-standards/standards/head-circumference-for-age))) to calculate percentiles for length by age, weight by age, head circumference by age, and length by weight based on the child's age and gender. Works on babies/kids up to 5 years old.
 
 ## Installing:
-Clone the repo to a folder of your choice and install dependencies by executing "pip install pandas scipy" in the command line.
+Clone the repo to a folder of your choice and install dependencies by executing "pip install pandas" in the command line.
 
 ## How to use:
 Execute child.py with the desired command line arguments to get percentiles for the measurements that you have. For example, to get a percentile for all measurements for a boy that's 3 months and 2 days old, you might type:

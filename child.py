@@ -1,10 +1,9 @@
 import pandas as pd
-import math
-from scipy.stats import norm
+from math import log, erf, sqrt
 import argparse
 from pathlib import Path
-import os
-import sys
+from os import path
+from sys import argv
 
 # Calculation taken from CDC website instructions for L S and M values (apply to WHO as well)
 def calc_percentile(age, val, chart):
@@ -13,12 +12,13 @@ def calc_percentile(age, val, chart):
     z_score = 0
 
     if chart_row["L"] == 0:
-        z_score = math.log(val/chart_row["M"]) / chart_row["S"]
+        z_score = log(val/chart_row["M"]) / chart_row["S"]
 
     else:
         z_score = (((val/chart_row["M"]) ** chart_row["L"]) - 1) / (chart_row["L"] * chart_row["S"])
 
-    return norm.cdf(z_score) *100
+    # inputs z-score into standard normal cdf, multiplies resultant by 100 to get percentile.
+    return ((1.0 + erf(z_score / sqrt(2.0))) / 2.0)  * 100
 
 # Get percentile (x to age).
 def calc_value(age, val, chart, unit, isImperial = False):
@@ -86,7 +86,12 @@ def main():
     args = parser.parse_args()
 
     # Used to find script location with data files (makes invariant to script path as long as data files are in same folder)
-    scriptPath = str(Path(os.path.dirname(sys.argv[0])).resolve())
+    scriptPath = None
+
+    try:
+        scriptPath = str(Path(path.dirname(__file__)).resolve()) # used by compiled binary
+    except NameError:
+        scriptPath = str(Path(path.dirname(argv[0])).resolve()) # used if we are executing child.py from the repo
 
     # sanity checks.
     isImperialWeight = args.pounds
@@ -179,9 +184,9 @@ def main():
         weight_chart = None
 
         if args.gender == "girl":
-            weight_chart = pd.read_excel(f"{scriptPath}/wfa-girls-zscore-expanded-tables.xlsx")
+            weight_chart = pd.read_excel(f"{scriptPath}/charts/wfa-girls-zscore-expanded-tables.xlsx")
         else:
-            weight_chart = pd.read_excel(f"{scriptPath}/wfa-boys-zscore-expanded-tables.xlsx")
+            weight_chart = pd.read_excel(f"{scriptPath}/charts/wfa-boys-zscore-expanded-tables.xlsx")
            
         weight_chart = weight_chart.set_index(['Day'])
 
@@ -193,9 +198,9 @@ def main():
         length_chart = None
 
         if args.gender == "girl":
-            length_chart = pd.read_excel(f"{scriptPath}/lhfa-girls-zscore-expanded-tables.xlsx")
+            length_chart = pd.read_excel(f"{scriptPath}/charts/lhfa-girls-zscore-expanded-tables.xlsx")
         else:
-            length_chart = pd.read_excel(f"{scriptPath}/lhfa-boys-zscore-expanded-tables.xlsx")
+            length_chart = pd.read_excel(f"{scriptPath}/charts/lhfa-boys-zscore-expanded-tables.xlsx")
            
         length_chart = length_chart.set_index(['Day'])
 
@@ -207,9 +212,9 @@ def main():
         head_chart = None
 
         if args.gender == "girl":
-            head_chart = pd.read_excel(f"{scriptPath}/hcfa-girls-zscore-expanded-tables.xlsx")
+            head_chart = pd.read_excel(f"{scriptPath}/charts/hcfa-girls-zscore-expanded-tables.xlsx")
         else:
-            head_chart = pd.read_excel(f"{scriptPath}/hcfa-boys-zscore-expanded-tables.xlsx")
+            head_chart = pd.read_excel(f"{scriptPath}/charts/hcfa-boys-zscore-expanded-tables.xlsx")
            
         head_chart = head_chart.set_index(['Day'])
 
@@ -222,18 +227,18 @@ def main():
 
         if args.gender == "girl":
             if days > 730:
-                wl_chart = pd.read_excel(f"{scriptPath}/tab_wfh_girls_p_2_5.xlsx")
+                wl_chart = pd.read_excel(f"{scriptPath}/charts/tab_wfh_girls_p_2_5.xlsx")
                 wl_chart = wl_chart.set_index(['Height'])
             else:
-                wl_chart = pd.read_excel(f"{scriptPath}/tab_wfl_girls_p_0_2.xlsx")
+                wl_chart = pd.read_excel(f"{scriptPath}/charts/tab_wfl_girls_p_0_2.xlsx")
                 wl_chart = wl_chart.set_index(['Length'])
 
         else:
             if days > 730:
-                wl_chart = pd.read_excel(f"{scriptPath}/tab_wfh_boys_p_2_5.xlsx")
+                wl_chart = pd.read_excel(f"{scriptPath}/charts/tab_wfh_boys_p_2_5.xlsx")
                 wl_chart = wl_chart.set_index(['Height'])
             else:
-                wl_chart = pd.read_excel(f"{scriptPath}/tab_wfl_boys_p_0_2.xlsx")
+                wl_chart = pd.read_excel(f"{scriptPath}/charts/tab_wfl_boys_p_0_2.xlsx")
                 wl_chart = wl_chart.set_index(['Length'])
 
         calc_value_wh(args.length, args.weight, wl_chart, isImperialWeight, isImperialLength)
