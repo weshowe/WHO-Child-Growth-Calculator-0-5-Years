@@ -4,7 +4,18 @@ Uses WHO data ([reference](https://www.cdc.gov/growthcharts/who-data-files.htm](
 ## Installing:
 Clone the repo to a folder of your choice and install dependencies by executing "pip install pandas" in the command line.
 
+The program has a command line version (child.py) and a GUI version (child_gui.py). The GUI was vibecoded because I don't like making UIs.
+
 ## How to use:
+
+### GUI
+
+Execute the following command and fill out the desired fields in the window. Percentile results will be displayed in the "Results" tab.
+
+    python child_gui.py
+
+### Command Line
+
 Execute child.py with the desired command line arguments to get percentiles for the measurements that you have. For example, to get a percentile for all measurements for a boy that's 3 months and 2 days old, you might type:
     
     python child.py --weight 5.5 --length 50 --head 30.3 --months 3 --days 2 --gender boy
